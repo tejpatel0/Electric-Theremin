@@ -13,11 +13,16 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X(); // for the TOF LIDAR
 #include <SD.h> // For SD card
 #include <Servo.h> // For the servos
 
+File dataFile;
+
 // Need to keep track of state
 volatile int state = -2; // -1 - Soft reset (return to home), 0 - Reset and erase recording (return to home), 1 - Play Live, 2 - Record, 3 - Play Recording
 volatile unsigned long time; // used for reset functionality
-int speaker = 10; // PWM pin 10
-//Servo myservo;
+int speaker = 3; // PWM pin 3
+Servo colOne;
+Servo colTwo;
+Servo colThree;
+Servo colFour;
 bool play = false;
 
 void reset() {
@@ -57,6 +62,8 @@ void record() {
 
 void play_recording() {
   state = 3;
+  // Play from the file on the sd
+  
 }
 
 
@@ -69,8 +76,13 @@ void setup() {
   Serial.begin(9600);
   enableInterrupt(A1, reset, CHANGE); // Play Live
   enableInterrupt(A2, play_live, RISING); // Play Live
-  //enableInterrupt(A2, record, RISING); // Play Live
-  //enableInterrupt(A3, play_recording, RISING); // Play Live
+  //enableInterrupt(A2, record, RISING); // Record
+  //enableInterrupt(A3, play_recording, RISING); // Play Recording
+  SD.begin(4);
+  colOne.attach(10);
+  //colTwo.attach(9);
+  //colThree.attach(6);
+  //colFour.attach(5);
 }
 
 void loop() {
@@ -80,6 +92,37 @@ void loop() {
   */
   //Serial.print("State is: ");
   //Serial.println(state);
+  if(state == 0){
+    // reset state
+  }else if(state == 1){
+    // play live state
+  }else if(state == 2){
+    // Record state
+  }else if(state == 3){
+    // Play Recording state
+    // open the file for reading
+    dataFile = SD.open("DATA.txt");
+    if (dataFile) {
+      // read from the file until there's nothing else in it:
+      while (dataFile.available()) {
+        char input = dataFile.read();
+        switch(input){
+          case '0':
+            tone(speaker, 110, 250);
+            colOne.write(60);
+            delay(250);
+            break;
+          case '1':
+            tone(speaker, 123.471, 250);
+            colOne.write(150);
+            delay(250);
+            break;
+        }
+      }
+      // close the file:
+      dataFile.close();
+    }
+  }
   /*
   tone(speaker, 110, 1000);
   delay(1000);
@@ -98,7 +141,6 @@ void loop() {
   tone(speaker, 207.652, 1000);
   delay(1000);
   */
-  
   /*
     for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
     // in steps of 1 degree
