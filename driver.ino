@@ -78,7 +78,7 @@ void setup() {
   enableInterrupt(A2, play_live, RISING); // Play Live
   //enableInterrupt(A2, record, RISING); // Record
   //enableInterrupt(A3, play_recording, RISING); // Play Recording
-  SD.begin(4);
+  SD.begin(8);
   colOne.attach(10);
   //colTwo.attach(9);
   //colThree.attach(6);
