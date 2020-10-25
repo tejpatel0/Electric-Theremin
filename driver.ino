@@ -10,19 +10,26 @@
 #include <EnableInterrupt.h>
 Adafruit_VL53L0X lox = Adafruit_VL53L0X(); // for the TOF LIDAR
 #include <SPI.h>
-#include <SD.h> // For SD card
 #include <Servo.h> // For the servos
 
-File dataFile;
+//File dataFile;
 
+// For TOF/LIDAR
+VL53L0X_RangingMeasurementData_t measure;
+// need an array to keep track of the music notes
+int notes[41] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 // Need to keep track of state
 volatile int state = -2; // -1 - Soft reset (return to home), 0 - Reset and erase recording (return to home), 1 - Play Live, 2 - Record, 3 - Play Recording
 volatile unsigned long time; // used for reset functionality
 int speaker = 3; // PWM pin 3
 Servo colOne;
+int colOneCurr = 0; // current position of 1
 Servo colTwo;
+int colTwoCurr = 0; // current position of 2
 Servo colThree;
+int colThreeCurr = 0; // current position of 3
 Servo colFour;
+int colFourCurr = 0; // current position of 4
 bool play = false;
 
 void reset() {
@@ -30,24 +37,23 @@ void reset() {
     // then we know that we pressed the button
     // start the timer
     time = millis();
-    Serial.println("Pressed button");
+    //Serial.println("Pressed button");
   }else{
     // then we released the button.
     // check the time.
     if((millis() - time) >= 3000){
       // We need to reset state and erase the recording.
-      Serial.print("Button pressed for: ");
-      Serial.println(millis()-time);
+      //Serial.print("Button pressed for: ");
+      //Serial.println(millis()-time);
       state = 0;
     }else{
       // Just a soft reset of state.
-      Serial.print("Button pressed for: ");
-      Serial.println(millis()-time);
+      //Serial.print("Button pressed for: ");
+      //Serial.println(millis()-time);
       state = -1;
     }
-    Serial.println("Released button");
+    //Serial.println("Released button");
   }
-  state = 0;
   // need to implement hold down of this button as well.
   // Will need to invoke the timer to check the state of the button
 }
@@ -73,12 +79,12 @@ void setup() {
   //myservo.attach(9);
   //myservo.writeMicroseconds(2000);
   // Used to setup interrup on any Arduino Pin.
-  Serial.begin(9600);
+  Serial.begin(115200);
   enableInterrupt(A1, reset, CHANGE); // Play Live
   enableInterrupt(A2, play_live, RISING); // Play Live
   //enableInterrupt(A2, record, RISING); // Record
   //enableInterrupt(A3, play_recording, RISING); // Play Recording
-  SD.begin(8);
+  lox.begin();
   colOne.attach(10);
   //colTwo.attach(9);
   //colThree.attach(6);
@@ -92,35 +98,122 @@ void loop() {
   */
   //Serial.print("State is: ");
   //Serial.println(state);
-  if(state == 0){
-    // reset state
+  if(state == -1){
+    // soft reset state
+    // does not do anything (is an idle state)
+  }else if(state == 0){
+    // erase the recording and send the columns back home
+    for(int i = 0; i < 41; i++){
+      notes[i] = 0;
+    }
+    // send columns home
+    colOne.write(0);
+    //colTwo.write(0);
+    //colThree.write(0);
+    //colFour.write(0);
+    delay(800);
+    colOne.write(90);
+    //colTwo.write(90);
+    //colThree.write(90);
+    //colFour.write(90);
+    colOneCurr = 0;
+    colTwoCurr = 0;
+    colThreeCurr = 0;
+    colFourCurr = 0;
   }else if(state == 1){
     // play live state
+    // need to read the TOF
+    VL53L0X_RangingMeasurementData_t measure;
+    int distance;
+    //Serial.print("Reading a measurement... ");
+    lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+    if (measure.RangeStatus != 4) {  // phase failures have incorrect data
+      //Serial.print("Distance (mm): "); 
+      distance = measure.RangeMilliMeter;
+      if(distance >= 100 && distance <= 130){
+        if(colOneCurr == 1){
+          // column already in position
+          // just play the sound
+          tone(speaker, 110, 500);
+        }else{
+          colOne.write(180);
+          delay(500);
+          colOne.write(90);  
+        }    
+        colOneCurr = 1;   
+      }
+    } else {
+      Serial.println(" out of range ");
+    }
+    delay(100);
   }else if(state == 2){
     // Record state
+    // check if the array is full
+    if(notes[0] == 1){
+      //memory is full, no more recording!
+      state = -1; // go to stop/soft reset state.
+    }else{
+      // we can record!
+      // find first index we can record in
+      int i = 1;
+      while(i<41 && state == 2){
+        if(notes[i] == 0){
+          // this spot is free
+          break;
+        }
+        i++;
+      }
+      // use the index found as beginning of for loop
+      // now actually perform the location tracking
+      while(i < 41 && state == 2){
+        // recording goes here
+        // need to read the TOF
+        VL53L0X_RangingMeasurementData_t measure;
+        int distance;
+        //Serial.print("Reading a measurement... ");
+        lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+        if (measure.RangeStatus != 4) {  // phase failures have incorrect data
+          //Serial.print("Distance (mm): "); 
+          distance = measure.RangeMilliMeter;
+          if(distance > 30 && distance < 50){
+            // play tone 1
+            // record tone 1
+            
+          }//etc
+        } else {
+          Serial.println(" out of range ");
+        }
+        delay(100);
+        i++;
+      }
+      if(i >= 41){
+        notes[0] = 1; // the memory is full!
+      }
+    }
   }else if(state == 3){
     // Play Recording state
-    // open the file for reading
-    dataFile = SD.open("DATA.txt");
-    if (dataFile) {
-      // read from the file until there's nothing else in it:
-      while (dataFile.available()) {
-        char input = dataFile.read();
-        switch(input){
-          case '0':
-            tone(speaker, 110, 250);
-            colOne.write(60);
-            delay(250);
-            break;
-          case '1':
-            tone(speaker, 123.471, 250);
-            colOne.write(150);
-            delay(250);
-            break;
-        }
+    // read the memory array
+    for(int i = 1; i < 41; i++){
+      // go through each element of the array
+      if(notes[i] == 0){
+        // this is invalid note, skip it.
+        continue;    
       }
-      // close the file:
-      dataFile.close();
+      // otherwise read the note and play the tone.
+      switch (notes[i]) {
+        case 1:
+          // play note 1
+          tone(speaker, 110, 500);
+          colOne.write(180);
+          delay(500);
+          colOne.write(90);
+          colOneCurr = 1; // in 1 tone position.
+          break;
+        case 2:
+          // play note 2
+          // move motor 2
+          break;
+      }
     }
   }
   /*
