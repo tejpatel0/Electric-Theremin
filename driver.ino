@@ -17,9 +17,9 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X(); // for the TOF LIDAR
 // For TOF/LIDAR
 VL53L0X_RangingMeasurementData_t measure;
 // need an array to keep track of the music notes
-int notes[41] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int notes[41] = {0,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
 // Need to keep track of state
-volatile int state = -2; // -1 - Soft reset (return to home), 0 - Reset and erase recording (return to home), 1 - Play Live, 2 - Record, 3 - Play Recording
+volatile int state = -1; // -1 - Soft reset (return to home), 0 - Reset and erase recording (return to home), 1 - Play Live, 2 - Record, 3 - Play Recording
 volatile unsigned long time; // used for reset functionality
 int speaker = 3; // PWM pin 3
 Servo colOne;
@@ -41,7 +41,7 @@ void reset() {
   }else{
     // then we released the button.
     // check the time.
-    if((millis() - time) >= 3000){
+    if((millis() - time) >= 2800){
       // We need to reset state and erase the recording.
       //Serial.print("Button pressed for: ");
       //Serial.println(millis()-time);
@@ -72,7 +72,7 @@ void play_recording() {
   
 }
 
-
+bool allHome = false;
 void setup() {
   // put your setup code here, to run once:
   //pinMode(speaker, OUTPUT);
@@ -86,41 +86,72 @@ void setup() {
   //enableInterrupt(A3, play_recording, RISING); // Play Recording
   lox.begin();
   colOne.attach(10);
-  //colTwo.attach(9);
-  //colThree.attach(6);
-  //colFour.attach(5);
+  colTwo.attach(9);
+  colThree.attach(6);
+  colFour.attach(5);
 }
 
 void loop() {
+  
   // put your main code here, to run repeatedly:
   /*
    * First step will be to check the current mode switches.
   */
   //Serial.print("State is: ");
-  //Serial.println(state);
+  Serial.println(state);
   if(state == -1){
     // soft reset state
     // does not do anything (is an idle state)
+    allHome = colOneCurr==0 && colTwoCurr==0 && colThreeCurr==0 && colFourCurr==0;
+    if(!allHome){
+      // send them home
+      colOne.write(0);
+      colTwo.write(0);
+      colThree.write(0);
+      colFour.write(0);
+      delay(800);
+      colOne.write(90);
+      colTwo.write(90);
+      colThree.write(90);
+      colFour.write(90);
+      colOneCurr = 0;
+      colTwoCurr = 0;
+      colThreeCurr = 0;
+      colFourCurr = 0;
+    }
+    colOne.write(90);
+    colTwo.write(90);
+    colThree.write(90);
+    colFour.write(90);
+    // moves columns back home
   }else if(state == 0){
     // erase the recording and send the columns back home
+    allHome = colOneCurr==0 && colTwoCurr==0 && colThreeCurr==0 && colFourCurr==0;
     for(int i = 0; i < 41; i++){
       notes[i] = 0;
     }
     // send columns home
-    colOne.write(0);
-    //colTwo.write(0);
-    //colThree.write(0);
-    //colFour.write(0);
-    delay(800);
+    if(!allHome){
+      // send them home
+      colOne.write(0);
+      colTwo.write(0);
+      colThree.write(0);
+      colFour.write(0);
+      delay(800);
+      colOne.write(90);
+      colTwo.write(90);
+      colThree.write(90);
+      colFour.write(90);
+      colOneCurr = 0;
+      colTwoCurr = 0;
+      colThreeCurr = 0;
+      colFourCurr = 0;
+    }
     colOne.write(90);
-    //colTwo.write(90);
-    //colThree.write(90);
-    //colFour.write(90);
-    colOneCurr = 0;
-    colTwoCurr = 0;
-    colThreeCurr = 0;
-    colFourCurr = 0;
-  }else if(state == 1){
+    colTwo.write(90);
+    colThree.write(90);
+    colFour.write(90);
+  }else if(state == 3){
     // play live state
     // need to read the TOF
     VL53L0X_RangingMeasurementData_t measure;
@@ -130,20 +161,96 @@ void loop() {
     if (measure.RangeStatus != 4) {  // phase failures have incorrect data
       //Serial.print("Distance (mm): "); 
       distance = measure.RangeMilliMeter;
-      if(distance >= 100 && distance <= 130){
+      if(distance >= 100 && distance < 130){
+        tone(speaker, 110);
         if(colOneCurr == 1){
           // column already in position
           // just play the sound
-          tone(speaker, 110, 500);
+          int two = 90;
+          int three = 90;
+          int four = 90;
+          // also move other columns down.
+          if(colTwoCurr != 0){
+            // drive col 2 back home
+            two = 0;
+          }
+          if(colThreeCurr != 0){
+            // drive three home
+            three = 0;
+          }
+          if(colFourCurr != 0){
+            four = 0;
+          }
+          colTwo.write(two);
+          colThree.write(three);
+          colFour.write(four);
+          if(colTwoCurr!=0 && colThreeCurr!=0 && colFourCurr!=0){
+            delay(500); // let them all go home
+          }
+          colTwo.write(90);
+          colThree.write(90);
+          colFour.write(90);
         }else{
+          //tone(speaker, 110, 500);
+          int two = 90;
+          int three = 90;
+          int four = 90;
+          // also move other columns down.
+          if(colTwoCurr != 0){
+            // drive col 2 back home
+            two = 0;
+          }
+          if(colThreeCurr != 0){
+            // drive three home
+            three = 0;
+          }
+          if(colFourCurr != 0){
+            four = 0;
+          }
           colOne.write(180);
-          delay(500);
-          colOne.write(90);  
+          colTwo.write(two);
+          colThree.write(three);
+          delay(500); // let them all go home
+          colOne.write(90);
+          colTwo.write(90);
+          colThree.write(90);
+          colFour.write(90);
         }    
         colOneCurr = 1;   
+        colTwoCurr = 0;
+        colThreeCurr = 0;
+        colFourCurr = 0;
+      }else if(distance >= 130 && distance < 150){
+        tone(speaker, 123.471);
+        // in this case play tone 2
+        if(colTwoCurr == 1){
+          // column already in position
+          // just play the sound
+          // also move other columns down.
+          if(colOneCurr != 0){
+            // drive col 1 back home
+            colOne.write(0);
+            delay(500);
+            colTwo.write(90);
+          }
+        }else{
+          if(colOneCurr != 0){
+            // drive col 1 back home
+            colOne.write(0);
+            colTwo.write(180);
+            delay(500);
+            colTwo.write(90); 
+            colOne.write(90);
+          }  
+        }    
+        colOneCurr = 0;   
+        colTwoCurr = 1;
+      }else{
+        
       }
     } else {
-      Serial.println(" out of range ");
+      //Serial.println(" out of range ");
+      noTone(speaker);
     }
     delay(100);
   }else if(state == 2){
@@ -190,29 +297,455 @@ void loop() {
         notes[0] = 1; // the memory is full!
       }
     }
-  }else if(state == 3){
+  }else if(state == 1){
     // Play Recording state
     // read the memory array
+    Serial.println(state);
     for(int i = 1; i < 41; i++){
       // go through each element of the array
       if(notes[i] == 0){
         // this is invalid note, skip it.
+        Serial.println("skipping first");
         continue;    
       }
       // otherwise read the note and play the tone.
       switch (notes[i]) {
         case 1:
           // play note 1
-          tone(speaker, 110, 500);
-          colOne.write(180);
-          delay(500);
-          colOne.write(90);
-          colOneCurr = 1; // in 1 tone position.
+          tone(speaker, 110,500);
+          if(colOneCurr == 1){
+            // column already in position
+            // just play the sound
+            int two = 90;
+            int three = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colTwoCurr != 0){
+              // drive col 2 back home
+              two = 0;
+            }
+            if(colThreeCurr != 0){
+              // drive three home
+              three = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colTwo.write(two);
+            colThree.write(three);
+            colFour.write(four);
+            delay(500);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int two = 90;
+            int three = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colTwoCurr != 0){
+              // drive col 2 back home
+              two = 0;
+            }
+            if(colThreeCurr != 0){
+              // drive three home
+              three = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colOne.write(180);
+            colTwo.write(two);
+            colThree.write(three);
+            colFour.write(four);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 1;   
+          colTwoCurr = 0;
+          colThreeCurr = 0;
+          colFourCurr = 0;
           break;
         case 2:
           // play note 2
           // move motor 2
+          tone(speaker, 123.471,500);
+          if(colTwoCurr == 1){
+            // column already in position
+            // just play the sound
+            int one = 90;
+            int three = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 1 back home
+              one = 0;
+            }
+            if(colThreeCurr != 0){
+              // drive three home
+              three = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colOne.write(one);
+            colThree.write(three);
+            colFour.write(four);
+            delay(500);
+            colOne.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int one = 90;
+            int three = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 2 back home
+              one = 0;
+            }
+            if(colThreeCurr != 0){
+              // drive three home
+              three = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colOne.write(one);
+            colTwo.write(180);
+            colThree.write(three);
+            colFour.write(four);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 0;   
+          colTwoCurr = 1;
+          colThreeCurr = 0;
+          colFourCurr = 0;
           break;
+        case 3:
+          // play note 3
+          tone(speaker, 130.813,500);
+          if(colThreeCurr == 1){
+            // column already in position
+            // just play the sound
+            int one = 90;
+            int two = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 1 back home
+              one = 0;
+            }
+            if(colTwoCurr != 0){
+              // drive three home
+              two = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colOne.write(one);
+            colTwo.write(two);
+            colFour.write(four);
+            delay(500);
+            colOne.write(90);
+            colTwo.write(90);
+            colFour.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int one = 90;
+            int two = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 1 back home
+              one = 0;
+            }
+            if(colTwoCurr != 0){
+              // drive three home
+              two = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colOne.write(one);
+            colTwo.write(two);
+            colThree.write(180);
+            colFour.write(four);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 0;   
+          colTwoCurr = 0;
+          colThreeCurr = 1;
+          colFourCurr = 0;
+          break;
+        case 4:
+          // play note 4
+          tone(speaker, 146.832,500);
+          if(colFourCurr == 1){
+            // column already in position
+            // just play the sound
+            int one = 90;
+            int two = 90;
+            int three = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 1 back home
+              one = 0;
+            }
+            if(colTwoCurr != 0){
+              // drive three home
+              two = 0;
+            }
+            if(colThreeCurr != 0){
+              three = 0;
+            }
+            colOne.write(one);
+            colTwo.write(two);
+            colThree.write(three);
+            delay(500);
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int one = 90;
+            int two = 90;
+            int three = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 1 back home
+              one = 0;
+            }
+            if(colTwoCurr != 0){
+              // drive three home
+              two = 0;
+            }
+            if(colThreeCurr != 0){
+              three = 0;
+            }
+            colOne.write(one);
+            colTwo.write(two);
+            colThree.write(three);
+            colFour.write(180);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 0;   
+          colTwoCurr = 0;
+          colThreeCurr = 0;
+          colFourCurr = 1;
+          break;
+        case 5:
+          // play note 5
+          tone(speaker, 164.814,500);
+          if(colOneCurr == 1 && colTwoCurr == 1){
+            // column already in position
+            // just play the sound
+            int four = 90;
+            int three = 90;
+            // also move other columns down.
+            if(colFourCurr != 0){
+              // drive three home
+              four = 0;
+            }
+            if(colThreeCurr != 0){
+              three = 0;
+            }
+            colFour.write(four);
+            colThree.write(three);
+            delay(500);
+            colFour.write(90);
+            colThree.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int three = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colFourCurr != 0){
+              // drive col 1 back home
+              four = 0;
+            }
+            if(colThreeCurr != 0){
+              three = 0;
+            }
+            colOne.write(180);
+            colTwo.write(180);
+            colThree.write(three);
+            colFour.write(four);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 1;   
+          colTwoCurr = 1;
+          colThreeCurr = 0;
+          colFourCurr = 0;
+          break;
+        case 6:
+          // play note 6
+          tone(speaker, 174.614,500);
+          if(colThreeCurr == 1 && colFourCurr == 1){
+            // column already in position
+            // just play the sound
+            int one = 90;
+            int two = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive three home
+              one = 0;
+            }
+            if(colTwoCurr != 0){
+              two = 0;
+            }
+            colOne.write(one);
+            colTwo.write(two);
+            delay(500);
+            colOne.write(90);
+            colTwo.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int one = 90;
+            int two = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 1 back home
+              one = 0;
+            }
+            if(colTwoCurr != 0){
+              two = 0;
+            }
+            colOne.write(one);
+            colTwo.write(two);
+            colThree.write(180);
+            colFour.write(180);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 0;   
+          colTwoCurr = 0;
+          colThreeCurr = 1;
+          colFourCurr = 1;
+          break;
+        case 7:
+          // play note 7
+          tone(speaker, 195.998,500);
+          if(colOneCurr == 1 && colThreeCurr == 1){
+            // column already in position
+            // just play the sound
+            int two = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colTwoCurr != 0){
+              // drive three home
+              two = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colTwo.write(two);
+            colFour.write(four);
+            delay(500);
+            colTwo.write(90);
+            colFour.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int two = 90;
+            int four = 90;
+            // also move other columns down.
+            if(colTwoCurr != 0){
+              // drive col 1 back home
+              two = 0;
+            }
+            if(colFourCurr != 0){
+              four = 0;
+            }
+            colOne.write(180);
+            colTwo.write(two);
+            colThree.write(180);
+            colFour.write(four);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 1;   
+          colTwoCurr = 0;
+          colThreeCurr = 1;
+          colFourCurr = 0;
+          break;
+        case 8:
+          // play note 8
+          tone(speaker, 207.652,500);
+          if(colTwoCurr == 1 && colFourCurr == 1){
+            // column already in position
+            // just play the sound
+            int one = 90;
+            int three = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive three home
+              one = 0;
+            }
+            if(colThreeCurr != 0){
+              three = 0;
+            }
+            colOne.write(one);
+            colThree.write(three);
+            delay(500);
+            colOne.write(90);
+            colThree.write(90);
+          }else{
+            //tone(speaker, 110, 500);
+            int one = 90;
+            int three = 90;
+            // also move other columns down.
+            if(colOneCurr != 0){
+              // drive col 1 back home
+              one = 0;
+            }
+            if(colThreeCurr != 0){
+              three = 0;
+            }
+            colOne.write(one);
+            colTwo.write(180);
+            colThree.write(three);
+            colFour.write(180);
+            delay(500); // let them all go home
+            colOne.write(90);
+            colTwo.write(90);
+            colThree.write(90);
+            colFour.write(90);
+          }    
+          colOneCurr = 0;   
+          colTwoCurr = 1;
+          colThreeCurr = 0;
+          colFourCurr = 1;
+          break;
+      }
+      if(state != 1){
+        break;
       }
     }
   }
