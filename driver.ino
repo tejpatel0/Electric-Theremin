@@ -669,11 +669,58 @@ void loop() {
             notes[i] = 1;
             // play tone 1
             tone(speaker, 110);
-            delay(500); // 1/2 second note plays.            
-          }//etc
+            delay(500); // 1/2 second note recording.            
+          }else if(distance >= 125 && distance < 150){
+            // record tone 2
+            notes[i] = 2;
+            // play tone 2
+            tone(speaker, 123.471);
+            delay(500); // 1/2 second note recording.
+          }else if(distance >= 150 && distance < 175){
+            // record tone 3
+            notes[i] = 3;
+            // play tone 3
+            tone(speaker, 130.813);
+            delay(500); // 1/2 second note recording.
+          }else if(distance >= 175 && distance < 200){
+            // record tone 4
+            notes[i] = 4;
+            // play tone 4
+            tone(speaker, 146.832);
+            delay(500); // 1/2 second note recording.
+          }else if(distance >= 200 && distance < 225){
+            // record tone 5
+            notes[i] = 5;
+            // play tone 5
+            tone(speaker, 164.814);
+            delay(500); // 1/2 second note recording.
+          }else if(distance >= 225 && distance < 250){
+            // record tone 6
+            notes[i] = 6;
+            // play tone 6
+            tone(speaker, 174.614);
+            delay(500); // 1/2 second note recording.
+          }else if(distance >= 250 && distance < 275){
+            // record tone 7
+            notes[i] = 7;
+            // play tone 7
+            tone(speaker, 195.998);
+            delay(500); // 1/2 second note recording.
+          }else if(distance >= 275 && distance < 300){
+            // record tone 8
+            notes[i] = 8;
+            // play tone 8
+            tone(speaker, 207.652);
+            delay(500); // 1/2 second note recording.
+          }else{
+            // the detected distance is not within the pre-programmed range.
+            noTone(speaker);
+            continue;
+          }
         } else {
           Serial.println(" out of range ");
           noTone(speaker);
+          continue;
         }
         delay(100);
         i++;
