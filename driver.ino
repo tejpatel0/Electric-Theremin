@@ -17,7 +17,7 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X(); // for the TOF LIDAR
 // For TOF/LIDAR
 VL53L0X_RangingMeasurementData_t measure;
 // need an array to keep track of the music notes
-int notes[41] = {0,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
+int notes[41] = {1,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
 // Need to keep track of state
 volatile int state = -1; // -1 - Soft reset (return to home), 0 - Reset and erase recording (return to home), 1 - Play Live, 2 - Record, 3 - Play Recording
 volatile unsigned long time; // used for reset functionality
@@ -37,25 +37,17 @@ void reset() {
     // then we know that we pressed the button
     // start the timer
     time = millis();
-    //Serial.println("Pressed button");
   }else{
     // then we released the button.
     // check the time.
     if((millis() - time) >= 2800){
       // We need to reset state and erase the recording.
-      //Serial.print("Button pressed for: ");
-      //Serial.println(millis()-time);
       state = 0;
     }else{
       // Just a soft reset of state.
-      //Serial.print("Button pressed for: ");
-      //Serial.println(millis()-time);
       state = -1;
     }
-    //Serial.println("Released button");
   }
-  // need to implement hold down of this button as well.
-  // Will need to invoke the timer to check the state of the button
 }
 
 void play_live() {
@@ -508,15 +500,12 @@ void tone8(){
 bool allHome = false;
 void setup() {
   // put your setup code here, to run once:
-  //pinMode(speaker, OUTPUT);
-  //myservo.attach(9);
-  //myservo.writeMicroseconds(2000);
   // Used to setup interrup on any Arduino Pin.
   Serial.begin(115200);
-  enableInterrupt(A1, reset, CHANGE); // Play Live
-  enableInterrupt(A2, play_live, FALLING); // Play Live
-  //enableInterrupt(A2, record, FALLING); // Record
-  //enableInterrupt(A3, play_recording, FALLING); // Play Recording
+  enableInterrupt(A0, reset, CHANGE); // reset/stop
+  enableInterrupt(A1, play_live, FALLING); // Play Live
+  enableInterrupt(A2, record, FALLING); // Record
+  enableInterrupt(A3, play_recording, FALLING); // Play Recording
   lox.begin();
   colOne.attach(10);
   colTwo.attach(9);
@@ -732,7 +721,7 @@ void loop() {
   }else if(state == 3){
     // Play Recording state
     // read the memory array
-    Serial.println(state);
+    //Serial.println(state);
     for(int i = 1; i < 41; i++){
       // go through each element of the array
       if(notes[i] == 0){
@@ -784,7 +773,7 @@ void loop() {
           tone8(); // move columns to position 8 - columns 2 and 4 are up.
           break;
       }
-      if(state != 1){
+      if(state != 3){
         break;
       }
     }
