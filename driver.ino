@@ -20,6 +20,8 @@ VL53L0X_RangingMeasurementData_t measure;
 int notes[41] = {1,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
 // Need to keep track of state
 volatile int state = -1; // -1 - Soft reset (return to home), 0 - Reset and erase recording (return to home), 1 - Play Live, 2 - Record, 3 - Play Recording
+volatile int toggleRecord = 1; // 0 means record now. 1 means pause the recording / STOP
+volatile int togglePlayRecord = 1; // 0 means play recording now. 1 means pause the recording being played now.
 volatile unsigned long time; // used for reset functionality
 int speaker = 3; // PWM pin 3
 int greenLED = 0;
@@ -58,10 +60,24 @@ void play_live() {
 
 void record() {
   state = 2;
+  if(toggleRecord == 1){
+    // if the recording was already paused then record again. 
+    toggleRecord = 0;
+  }else if(toggleRecord == 0){
+    // if the recording was already occuring then pause it.
+    toggleRecord = 1;
+  }
 }
 
 void play_recording() {
   state = 3;
+  if(togglePlayRecord == 1){
+    // if the playing recording was already paused then play it. 
+    togglePlayRecord = 0;
+  }else if(togglePlayRecord == 0){
+    // if the playing recording was already playing then pause it.
+    togglePlayRecord = 1;
+  }
   // Play from the file on the sd
   
 }
@@ -655,6 +671,11 @@ void loop() {
       // use the index found as beginning of for loop
       // now actually perform the location tracking
       while(i < 41 && state == 2){
+        if(toggleRecording == 1){
+          // we need to pause the recording.
+          noTone(speaker);
+          continue;
+        }
         // recording goes here
         // need to read the TOF
         VL53L0X_RangingMeasurementData_t measure;
@@ -735,8 +756,13 @@ void loop() {
     // Play Recording state
     // read the memory array
     //Serial.println(state);
-    for(int i = 1; i < 41; i++){
+    int i = 1;
+    while(i < 41){
       // go through each element of the array
+      if(togglePlayRecording == 1){
+        // need to pause playing the recording
+        continue;
+      }
       if(notes[i] == 0){
         // this is invalid note, skip it.
         Serial.println("skipping first");
@@ -786,6 +812,7 @@ void loop() {
           tone8(); // move columns to position 8 - columns 2 and 4 are up.
           break;
       }
+      i++;
       if(state != 3){
         break;
       }
