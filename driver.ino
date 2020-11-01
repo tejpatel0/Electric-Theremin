@@ -22,6 +22,8 @@ int notes[41] = {1,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7
 volatile int state = -1; // -1 - Soft reset (return to home), 0 - Reset and erase recording (return to home), 1 - Play Live, 2 - Record, 3 - Play Recording
 volatile unsigned long time; // used for reset functionality
 int speaker = 3; // PWM pin 3
+int greenLED = 0;
+int redLED = 1;
 Servo colOne;
 int colOneCurr = 0; // current position of 1
 Servo colTwo;
@@ -87,12 +89,11 @@ void tone1(){
     colTwo.write(two);
     colThree.write(three);
     colFour.write(four);
-    delay(500);
+    delay(1250);
     colTwo.write(90);
     colThree.write(90);
     colFour.write(90);
   }else{
-    //tone(speaker, 110, 500);
     int two = 90;
     int three = 90;
     int four = 90;
@@ -112,7 +113,7 @@ void tone1(){
     colTwo.write(two);
     colThree.write(three);
     colFour.write(four);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -148,7 +149,7 @@ void tone2(){
     colOne.write(one);
     colThree.write(three);
     colFour.write(four);
-    delay(500);
+    delay(1250);
     colOne.write(90);
     colThree.write(90);
     colFour.write(90);
@@ -173,7 +174,7 @@ void tone2(){
     colTwo.write(180);
     colThree.write(three);
     colFour.write(four);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -208,7 +209,7 @@ void tone3(){
     colOne.write(one);
     colTwo.write(two);
     colFour.write(four);
-    delay(500);
+    delay(1250);
     colOne.write(90);
     colTwo.write(90);
     colFour.write(90);
@@ -233,7 +234,7 @@ void tone3(){
     colTwo.write(two);
     colThree.write(180);
     colFour.write(four);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -268,7 +269,7 @@ void tone4(){
     colOne.write(one);
     colTwo.write(two);
     colThree.write(three);
-    delay(500);
+    delay(1250);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -293,7 +294,7 @@ void tone4(){
     colTwo.write(two);
     colThree.write(three);
     colFour.write(180);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -322,7 +323,7 @@ void tone5() {
     }
     colFour.write(four);
     colThree.write(three);
-    delay(500);
+    delay(1250);
     colFour.write(90);
     colThree.write(90);
   }else{
@@ -341,7 +342,7 @@ void tone5() {
     colTwo.write(180);
     colThree.write(three);
     colFour.write(four);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -370,7 +371,7 @@ void tone6(){
     }
     colOne.write(one);
     colTwo.write(two);
-    delay(500);
+    delay(1250);
     colOne.write(90);
     colTwo.write(90);
   }else{
@@ -389,7 +390,7 @@ void tone6(){
     colTwo.write(two);
     colThree.write(180);
     colFour.write(180);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -418,7 +419,7 @@ void tone7(){
     }
     colTwo.write(two);
     colFour.write(four);
-    delay(500);
+    delay(1250);
     colTwo.write(90);
     colFour.write(90);
   }else{
@@ -437,7 +438,7 @@ void tone7(){
     colTwo.write(two);
     colThree.write(180);
     colFour.write(four);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -466,7 +467,7 @@ void tone8(){
     }
     colOne.write(one);
     colThree.write(three);
-    delay(500);
+    delay(1250);
     colOne.write(90);
     colThree.write(90);
   }else{
@@ -485,7 +486,7 @@ void tone8(){
     colTwo.write(180);
     colThree.write(three);
     colFour.write(180);
-    delay(500); // let them all go home
+    delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -511,6 +512,8 @@ void setup() {
   colTwo.attach(9);
   colThree.attach(6);
   colFour.attach(5);
+  pinMode(redLED, OUTPUT);
+  pinMode(greenLED, OUTPUT);
 }
 
 void loop() {
@@ -526,33 +529,36 @@ void loop() {
   //Serial.print("mode 1 is: ");
   //Serial.println(analogRead(A2));
   if(state == -1){
+    digitalWrite(redLED, HIGH);
+    digitalWrite(greenLED, LOW);
     // soft reset state
     // stop the music.
     noTone(speaker);
     // does not do anything (is an idle state)
     allHome = colOneCurr==0 && colTwoCurr==0 && colThreeCurr==0 && colFourCurr==0;
-    if(!allHome){
-      // send them home
+    // send columns home
+    if(colOneCurr != 0){
       colOne.write(0);
-      colTwo.write(0);
-      colThree.write(0);
-      colFour.write(0);
-      delay(800);
-      colOne.write(90);
-      colTwo.write(90);
-      colThree.write(90);
-      colFour.write(90);
-      colOneCurr = 0;
-      colTwoCurr = 0;
-      colThreeCurr = 0;
-      colFourCurr = 0;
     }
+    if(colTwoCurr != 0){
+      colTwo.write(0);
+    }
+    if(colThreeCurr != 0){
+      colThree.write(0);
+    }
+    if(colFourCurr != 0){
+      colFour.write(0);
+    }
+    delay(1350);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
     colFour.write(90);
     // moves columns back home
   }else if(state == 0){
+    digitalWrite(redLED, HIGH);
+    digitalWrite(greenLED, LOW);
+    delay(500);
     // stop the music.
     noTone(speaker);
     // erase the recording and send the columns back home
@@ -561,27 +567,30 @@ void loop() {
       notes[i] = 0;
     }
     // send columns home
-    if(!allHome){
-      // send them home
+    if(colOneCurr != 0){
       colOne.write(0);
-      colTwo.write(0);
-      colThree.write(0);
-      colFour.write(0);
-      delay(800);
-      colOne.write(90);
-      colTwo.write(90);
-      colThree.write(90);
-      colFour.write(90);
-      colOneCurr = 0;
-      colTwoCurr = 0;
-      colThreeCurr = 0;
-      colFourCurr = 0;
     }
+    if(colTwoCurr != 0){
+      colTwo.write(0);
+    }
+    if(colThreeCurr != 0){
+      colThree.write(0);
+    }
+    if(colFourCurr != 0){
+      colFour.write(0);
+    }
+    delay(1350);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
     colFour.write(90);
+    state = -1; // no need to keep erasing.
+    digitalWrite(redLED, LOW);
+    delay(500);
+    digitalWrite(redLED, HIGH);
   }else if(state == 1){
+    digitalWrite(redLED, LOW);
+    digitalWrite(greenLED, HIGH);
     // play live state
     // need to read the TOF
     VL53L0X_RangingMeasurementData_t measure;
@@ -625,6 +634,8 @@ void loop() {
     }
     delay(100);
   }else if(state == 2){
+    digitalWrite(redLED, LOW);
+    digitalWrite(greenLED, HIGH);
     // Record state
     // check if the array is full
     if(notes[0] == 1){
@@ -719,6 +730,8 @@ void loop() {
       }
     }
   }else if(state == 3){
+    digitalWrite(redLED, LOW);
+    digitalWrite(greenLED, HIGH);
     // Play Recording state
     // read the memory array
     //Serial.println(state);
