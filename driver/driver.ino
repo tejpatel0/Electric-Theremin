@@ -683,6 +683,28 @@ void loop() {
       }else{
         // if current reading is not mapped do not play a note.
         noTone(speaker);
+        //return columns home.
+        if(colOneCurr != 0){
+          colOne.write(180);
+        }
+        if(colTwoCurr != 0){
+          colTwo.write(180);
+        }
+        if(colThreeCurr != 0){
+          colThree.write(180);
+        }
+        if(colFourCurr != 0){
+          colFour.write(180);
+        }
+        delay(1350);
+        colOne.write(90);
+        colTwo.write(90);
+        colThree.write(90);
+        colFour.write(90);
+        colOneCurr = 0;
+        colTwoCurr = 0;
+        colThreeCurr = 0;
+        colFourCurr = 0;
       }
     } else {
       //Serial.println(" out of range ");
