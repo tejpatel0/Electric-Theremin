@@ -59,27 +59,38 @@ void play_live() {
 }
 
 void record() {
-  state = 2;
-  if(toggleRecord == 1){
-    // if the recording was already paused then record again. 
-    toggleRecord = 0;
-  }else if(toggleRecord == 0){
-    // if the recording was already occuring then pause it.
-    toggleRecord = 1;
+  static unsigned long last_interrupt_time1 = 0;
+  unsigned long interrupt_time1 = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time1 - last_interrupt_time1 > 200){
+    state = 2;
+    if(toggleRecord == 1){
+      // if the recording was already paused then record again. 
+      toggleRecord = 0;
+    }else if(toggleRecord == 0){
+      // if the recording was already occuring then pause it.
+      toggleRecord = 1;
+    }
   }
+  last_interrupt_time1 = interrupt_time1;
 }
 
 void play_recording() {
-  state = 3;
-  if(togglePlayRecord == 1){
-    // if the playing recording was already paused then play it. 
-    togglePlayRecord = 0;
-  }else if(togglePlayRecord == 0){
-    // if the playing recording was already playing then pause it.
-    togglePlayRecord = 1;
-  }
-  // Play from the file on the sd
-  
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+   // If interrupts come faster than 200ms, assume it's a bounce and ignore
+   if (interrupt_time - last_interrupt_time > 200){
+    state = 3;
+    Serial.println("Triggered interrupt for play recording");
+    if(togglePlayRecord == 1){
+      // if the playing recording was already paused then play it. 
+      togglePlayRecord = 0;
+    }else if(togglePlayRecord == 0){
+      // if the playing recording was already playing then pause it.
+      togglePlayRecord = 1;
+    }
+   }
+   last_interrupt_time = interrupt_time;
 }
 // moves column 1 up and the rest of them down.
 void tone1(){
@@ -93,14 +104,14 @@ void tone1(){
     // also move other columns down.
     if(colTwoCurr != 0){
       // drive col 2 back home
-      two = 0;
+      two = 180;
     }
     if(colThreeCurr != 0){
       // drive three home
-      three = 0;
+      three = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
     colTwo.write(two);
     colThree.write(three);
@@ -116,16 +127,16 @@ void tone1(){
     // also move other columns down.
     if(colTwoCurr != 0){
       // drive col 2 back home
-      two = 0;
+      two = 180;
     }
     if(colThreeCurr != 0){
       // drive three home
-      three = 0;
+      three = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
-    colOne.write(180);
+    colOne.write(0);
     colTwo.write(two);
     colThree.write(three);
     colFour.write(four);
@@ -153,14 +164,14 @@ void tone2(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 1 back home
-      one = 0;
+      one = 180;
     }
     if(colThreeCurr != 0){
       // drive three home
-      three = 0;
+      three = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
     colOne.write(one);
     colThree.write(three);
@@ -177,17 +188,17 @@ void tone2(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 2 back home
-      one = 0;
+      one = 180;
     }
     if(colThreeCurr != 0){
       // drive three home
-      three = 0;
+      three = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
     colOne.write(one);
-    colTwo.write(180);
+    colTwo.write(0);
     colThree.write(three);
     colFour.write(four);
     delay(1250); // let them all go home
@@ -213,14 +224,14 @@ void tone3(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 1 back home
-      one = 0;
+      one = 180;
     }
     if(colTwoCurr != 0){
       // drive three home
-      two = 0;
+      two = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
     colOne.write(one);
     colTwo.write(two);
@@ -237,18 +248,18 @@ void tone3(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 1 back home
-      one = 0;
+      one = 180;
     }
     if(colTwoCurr != 0){
       // drive three home
-      two = 0;
+      two = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
     colOne.write(one);
     colTwo.write(two);
-    colThree.write(180);
+    colThree.write(0);
     colFour.write(four);
     delay(1250); // let them all go home
     colOne.write(90);
@@ -273,14 +284,14 @@ void tone4(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 1 back home
-      one = 0;
+      one = 180;
     }
     if(colTwoCurr != 0){
       // drive three home
-      two = 0;
+      two = 180;
     }
     if(colThreeCurr != 0){
-      three = 0;
+      three = 180;
     }
     colOne.write(one);
     colTwo.write(two);
@@ -297,19 +308,19 @@ void tone4(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 1 back home
-      one = 0;
+      one = 180;
     }
     if(colTwoCurr != 0){
       // drive three home
-      two = 0;
+      two = 180;
     }
     if(colThreeCurr != 0){
-      three = 0;
+      three = 180;
     }
     colOne.write(one);
     colTwo.write(two);
     colThree.write(three);
-    colFour.write(180);
+    colFour.write(0);
     delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
@@ -332,10 +343,10 @@ void tone5() {
     // also move other columns down.
     if(colFourCurr != 0){
       // drive three home
-      four = 0;
+      four = 180;
     }
     if(colThreeCurr != 0){
-      three = 0;
+      three = 180;
     }
     colFour.write(four);
     colThree.write(three);
@@ -349,13 +360,17 @@ void tone5() {
     // also move other columns down.
     if(colFourCurr != 0){
       // drive col 1 back home
-      four = 0;
+      four = 180;
     }
     if(colThreeCurr != 0){
-      three = 0;
+      three = 180;
     }
-    colOne.write(180);
-    colTwo.write(180);
+    if(colOneCurr != 1){
+      colOne.write(0);
+    }
+    if(colTwoCurr != 1){
+      colTwo.write(0);
+    }
     colThree.write(three);
     colFour.write(four);
     delay(1250); // let them all go home
@@ -380,10 +395,10 @@ void tone6(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive three home
-      one = 0;
+      one = 180;
     }
     if(colTwoCurr != 0){
-      two = 0;
+      two = 180;
     }
     colOne.write(one);
     colTwo.write(two);
@@ -397,15 +412,19 @@ void tone6(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 1 back home
-      one = 0;
+      one = 180;
     }
     if(colTwoCurr != 0){
-      two = 0;
+      two = 180;
+    }
+    if(colThreeCurr != 1){
+      colThree.write(0);
+    }
+    if(colFourCurr != 1){
+      colFour.write(0);
     }
     colOne.write(one);
     colTwo.write(two);
-    colThree.write(180);
-    colFour.write(180);
     delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
@@ -428,10 +447,10 @@ void tone7(){
     // also move other columns down.
     if(colTwoCurr != 0){
       // drive three home
-      two = 0;
+      two = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
     colTwo.write(two);
     colFour.write(four);
@@ -445,14 +464,18 @@ void tone7(){
     // also move other columns down.
     if(colTwoCurr != 0){
       // drive col 1 back home
-      two = 0;
+      two = 180;
     }
     if(colFourCurr != 0){
-      four = 0;
+      four = 180;
     }
-    colOne.write(180);
+    if(colOneCurr != 1){
+      colOne.write(0);
+    }
+    if(colThreeCurr != 1){
+      colThree.write(0);
+    }
     colTwo.write(two);
-    colThree.write(180);
     colFour.write(four);
     delay(1250); // let them all go home
     colOne.write(90);
@@ -476,10 +499,10 @@ void tone8(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive three home
-      one = 0;
+      one = 180;
     }
     if(colThreeCurr != 0){
-      three = 0;
+      three = 180;
     }
     colOne.write(one);
     colThree.write(three);
@@ -493,15 +516,19 @@ void tone8(){
     // also move other columns down.
     if(colOneCurr != 0){
       // drive col 1 back home
-      one = 0;
+      one = 180;
     }
     if(colThreeCurr != 0){
-      three = 0;
+      three = 180;
+    }
+    if(colTwoCurr != 1){
+      colTwo.write(0);
+    }
+    if(colFourCurr != 1){
+      colFour.write(0);
     }
     colOne.write(one);
-    colTwo.write(180);
     colThree.write(three);
-    colFour.write(180);
     delay(1250); // let them all go home
     colOne.write(90);
     colTwo.write(90);
@@ -554,22 +581,27 @@ void loop() {
     allHome = colOneCurr==0 && colTwoCurr==0 && colThreeCurr==0 && colFourCurr==0;
     // send columns home
     if(colOneCurr != 0){
-      colOne.write(0);
+      colOne.write(180);
     }
     if(colTwoCurr != 0){
-      colTwo.write(0);
+      colTwo.write(180);
     }
     if(colThreeCurr != 0){
-      colThree.write(0);
+      colThree.write(180);
     }
     if(colFourCurr != 0){
-      colFour.write(0);
+      colFour.write(180);
     }
     delay(1350);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
     colFour.write(90);
+    // at this point all columns are back home
+    colOneCurr = 0;
+    colTwoCurr = 0;
+    colThreeCurr = 0;
+    colFourCurr = 0;
     // moves columns back home
   }else if(state == 0){
     digitalWrite(redLED, HIGH);
@@ -584,16 +616,16 @@ void loop() {
     }
     // send columns home
     if(colOneCurr != 0){
-      colOne.write(0);
+      colOne.write(180);
     }
     if(colTwoCurr != 0){
-      colTwo.write(0);
+      colTwo.write(180);
     }
     if(colThreeCurr != 0){
-      colThree.write(0);
+      colThree.write(180);
     }
     if(colFourCurr != 0){
-      colFour.write(0);
+      colFour.write(180);
     }
     delay(1350);
     colOne.write(90);
@@ -603,6 +635,11 @@ void loop() {
     state = -1; // no need to keep erasing.
     digitalWrite(redLED, LOW);
     delay(500);
+    // at this point all columns are back home
+    colOneCurr = 0;
+    colTwoCurr = 0;
+    colThreeCurr = 0;
+    colFourCurr = 0;
     digitalWrite(redLED, HIGH);
   }else if(state == 1){
     digitalWrite(redLED, LOW);
@@ -647,6 +684,28 @@ void loop() {
     } else {
       //Serial.println(" out of range ");
       noTone(speaker);
+      //return columns home.
+     if(colOneCurr != 0){
+      colOne.write(180);
+    }
+    if(colTwoCurr != 0){
+      colTwo.write(180);
+    }
+    if(colThreeCurr != 0){
+      colThree.write(180);
+    }
+    if(colFourCurr != 0){
+      colFour.write(180);
+    }
+    delay(1350);
+    colOne.write(90);
+    colTwo.write(90);
+    colThree.write(90);
+    colFour.write(90);
+    colOneCurr = 0;
+    colTwoCurr = 0;
+    colThreeCurr = 0;
+    colFourCurr = 0;
     }
     delay(100);
   }else if(state == 2){
@@ -671,7 +730,9 @@ void loop() {
       // use the index found as beginning of for loop
       // now actually perform the location tracking
       while(i < 41 && state == 2){
-        if(toggleRecording == 1){
+        digitalWrite(redLED, LOW);
+        digitalWrite(greenLED, HIGH);
+        if(toggleRecord == 1){
           // we need to pause the recording.
           noTone(speaker);
           continue;
@@ -736,10 +797,9 @@ void loop() {
           }else{
             // the detected distance is not within the pre-programmed range.
             noTone(speaker);
-            continue;
           }
         } else {
-          Serial.println(" out of range ");
+          //Serial.println(" out of range ");
           noTone(speaker);
           continue;
         }
@@ -757,15 +817,17 @@ void loop() {
     // read the memory array
     //Serial.println(state);
     int i = 1;
-    while(i < 41){
+    while(i < 41 && state == 3){
       // go through each element of the array
-      if(togglePlayRecording == 1){
+      Serial.print("togglePlayRecord is: ");
+      Serial.println(togglePlayRecord);
+      if(togglePlayRecord == 1){
         // need to pause playing the recording
         continue;
       }
       if(notes[i] == 0){
         // this is invalid note, skip it.
-        Serial.println("skipping first");
+        //Serial.println("skipping first");
         continue;    
       }
       // otherwise read the note and play the tone.
