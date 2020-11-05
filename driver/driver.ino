@@ -664,28 +664,28 @@ void loop() {
       //Serial.print("Distance (mm): "); 
       distance = measure.RangeMilliMeter;
       if(distance >= 100 && distance < 125){
-        tone(speaker, 110);
+        tone(speaker, 440);
         tone1(); // move columns to position 1 - column 1 is up.
       }else if(distance >= 125 && distance < 150){
-        tone(speaker, 123.471);
+        tone(speaker, 493.88);
         tone2(); // move columns to position 2 - column 2 is up.
       }else if(distance >= 150 && distance < 175){
-        tone(speaker, 130.813);
+        tone(speaker, 523.25);
         tone3(); // move columns to position 3 - column 3 is up.
       }else if(distance >= 175 && distance < 200){
-        tone(speaker, 146.832);
+        tone(speaker, 587.33);
         tone4(); // move columns to position 4 - column 4 is up.
       }else if(distance >= 200 && distance < 225){
-        tone(speaker, 164.814);
+        tone(speaker, 659.25);
         tone5(); // move columns to position 5 - columns 1 and 2 are up.
       }else if(distance >= 225 && distance < 250) {
-        tone(speaker, 174.614);
+        tone(speaker, 698.46);
         tone6(); // move columns to position 6 - columns 3 and 4 are up.
       }else if(distance >= 250 && distance < 275) {
-        tone(speaker, 195.998);
+        tone(speaker, 783.99);
         tone7(); // move columns to position 7 - columns 1 and 3 are up.
       }else if(distance >= 275 && distance < 300) {
-        tone(speaker, 207.652);
+        tone(speaker, 830.61);
         tone8(); // move columns to position 8 - columns 2 and 4 are up.
       }else{
         // if current reading is not mapped do not play a note.
@@ -810,49 +810,49 @@ void loop() {
             // record tone 1
             notes[i] = 1;
             // play tone 1
-            tone(speaker, 110);
+            tone(speaker, 440);
             delay(1000); // 1/2 second note recording.            
           }else if(distance >= 125 && distance < 150){
             // record tone 2
             notes[i] = 2;
             // play tone 2
-            tone(speaker, 123.471);
+            tone(speaker, 493.88);
             delay(1000); // 1/2 second note recording.
           }else if(distance >= 150 && distance < 175){
             // record tone 3
             notes[i] = 3;
             // play tone 3
-            tone(speaker, 130.813);
+            tone(speaker, 523.25);
             delay(1000); // 1/2 second note recording.
           }else if(distance >= 175 && distance < 200){
             // record tone 4
             notes[i] = 4;
             // play tone 4
-            tone(speaker, 146.832);
+            tone(speaker, 587.33);
             delay(1000); // 1/2 second note recording.
           }else if(distance >= 200 && distance < 225){
             // record tone 5
             notes[i] = 5;
             // play tone 5
-            tone(speaker, 164.814);
+            tone(speaker, 659.25);
             delay(1000); // 1/2 second note recording.
           }else if(distance >= 225 && distance < 250){
             // record tone 6
             notes[i] = 6;
             // play tone 6
-            tone(speaker, 174.614);
+            tone(speaker, 698.46);
             delay(1000); // 1/2 second note recording.
           }else if(distance >= 250 && distance < 275){
             // record tone 7
             notes[i] = 7;
             // play tone 7
-            tone(speaker, 195.998);
+            tone(speaker, 783.99);
             delay(1000); // 1/2 second note recording.
           }else if(distance >= 275 && distance < 300){
             // record tone 8
             notes[i] = 8;
             // play tone 8
-            tone(speaker, 207.652);
+            tone(speaker, 830.61);
             delay(1000); // 1/2 second note recording.
           }else{
             // the detected distance is not within the pre-programmed range.
@@ -930,43 +930,43 @@ void loop() {
       switch (notes[i]) {
         case 1:
           // play note 1
-          tone(speaker, 110,1000);
+          tone(speaker, 440,1000);
           tone1(); // move columns to position 1 - column 1 is up.
           break;
         case 2:
           // play note 2
           // move motor 2
-          tone(speaker, 123.471,1000);
+          tone(speaker, 493.88,1000);
           tone2(); // move columns to position 2 - column 2 is up.
           break;
         case 3:
           // play note 3
-          tone(speaker, 130.813,1000);
+          tone(speaker, 523.25,1000);
           tone3(); // move columns to position 3 - column 3 is up.
           break;
         case 4:
           // play note 4
-          tone(speaker, 146.832,1000);
+          tone(speaker, 587.33,1000);
           tone4(); // move columns to position 4 - column 4 is up.
           break;
         case 5:
           // play note 5
-          tone(speaker, 164.814,1000); // move columns to position 5 - columns 1 and 2 are up.
+          tone(speaker, 659.25,1000); // move columns to position 5 - columns 1 and 2 are up.
           tone5();
           break;
         case 6:
           // play note 6
-          tone(speaker, 174.614,1000); // move columns to position 6 - columns 3 and 4 are up.
+          tone(speaker, 698.46,1000); // move columns to position 6 - columns 3 and 4 are up.
           tone6();
           break;
         case 7:
           // play note 7
-          tone(speaker, 195.998,1000); // move columns to position 7 - columns 1 and 3 are up.
+          tone(speaker, 783.99,1000); // move columns to position 7 - columns 1 and 3 are up.
           tone7();
           break;
         case 8:
           // play note 8
-          tone(speaker, 207.652,1000);
+          tone(speaker, 830.61,1000);
           tone8(); // move columns to position 8 - columns 2 and 4 are up.
           break;
       }
