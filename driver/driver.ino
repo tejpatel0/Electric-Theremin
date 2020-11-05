@@ -124,7 +124,7 @@ void tone1(){
     colTwo.write(two);
     colThree.write(three);
     colFour.write(four);
-    delay(1250);
+    delay(1400);
     colTwo.write(90);
     colThree.write(90);
     colFour.write(90);
@@ -148,7 +148,7 @@ void tone1(){
     colTwo.write(two);
     colThree.write(three);
     colFour.write(four);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -184,7 +184,7 @@ void tone2(){
     colOne.write(one);
     colThree.write(three);
     colFour.write(four);
-    delay(1250);
+    delay(1400);
     colOne.write(90);
     colThree.write(90);
     colFour.write(90);
@@ -209,7 +209,7 @@ void tone2(){
     colTwo.write(0);
     colThree.write(three);
     colFour.write(four);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -244,7 +244,7 @@ void tone3(){
     colOne.write(one);
     colTwo.write(two);
     colFour.write(four);
-    delay(1250);
+    delay(1400);
     colOne.write(90);
     colTwo.write(90);
     colFour.write(90);
@@ -269,7 +269,7 @@ void tone3(){
     colTwo.write(two);
     colThree.write(0);
     colFour.write(four);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -304,7 +304,7 @@ void tone4(){
     colOne.write(one);
     colTwo.write(two);
     colThree.write(three);
-    delay(1250);
+    delay(1400);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -329,7 +329,7 @@ void tone4(){
     colTwo.write(two);
     colThree.write(three);
     colFour.write(0);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -358,7 +358,7 @@ void tone5() {
     }
     colFour.write(four);
     colThree.write(three);
-    delay(1250);
+    delay(1400);
     colFour.write(90);
     colThree.write(90);
   }else{
@@ -381,7 +381,7 @@ void tone5() {
     }
     colThree.write(three);
     colFour.write(four);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -410,7 +410,7 @@ void tone6(){
     }
     colOne.write(one);
     colTwo.write(two);
-    delay(1250);
+    delay(1400);
     colOne.write(90);
     colTwo.write(90);
   }else{
@@ -433,7 +433,7 @@ void tone6(){
     }
     colOne.write(one);
     colTwo.write(two);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -462,7 +462,7 @@ void tone7(){
     }
     colTwo.write(two);
     colFour.write(four);
-    delay(1250);
+    delay(1400);
     colTwo.write(90);
     colFour.write(90);
   }else{
@@ -485,7 +485,7 @@ void tone7(){
     }
     colTwo.write(two);
     colFour.write(four);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -514,7 +514,7 @@ void tone8(){
     }
     colOne.write(one);
     colThree.write(three);
-    delay(1250);
+    delay(1400);
     colOne.write(90);
     colThree.write(90);
   }else{
@@ -537,7 +537,7 @@ void tone8(){
     }
     colOne.write(one);
     colThree.write(three);
-    delay(1250); // let them all go home
+    delay(1400); // let them all go home
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -602,7 +602,7 @@ void loop() {
     if(colFourCurr != 0){
       colFour.write(180);
     }
-    delay(1500);
+    delay(1600);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -637,7 +637,7 @@ void loop() {
     if(colFourCurr != 0){
       colFour.write(180);
     }
-    delay(1500);
+    delay(1600);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
@@ -703,7 +703,7 @@ void loop() {
         if(colFourCurr != 0){
           colFour.write(180);
         }
-        delay(1350);
+        delay(1400);
         colOne.write(90);
         colTwo.write(90);
         colThree.write(90);
@@ -729,7 +729,7 @@ void loop() {
     if(colFourCurr != 0){
       colFour.write(180);
     }
-    delay(1350);
+    delay(1400);
     colOne.write(90);
     colTwo.write(90);
     colThree.write(90);
